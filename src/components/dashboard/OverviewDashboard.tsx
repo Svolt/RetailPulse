@@ -15,7 +15,11 @@ import {
   ChevronRight,
   ShieldAlert,
   Flame,
-  Award
+  Award,
+  Download,
+  FileSpreadsheet,
+  ChevronDown,
+  ArrowRight
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -31,6 +35,8 @@ import {
 } from 'recharts';
 import { useApp } from '../../context/AppContext';
 import { SALES_TREND_DATA, CATEGORY_DISTRIBUTION } from '../../data/mockData';
+import { ReportExportModal } from './ReportExportModal';
+import { generatePerformanceCSV, generatePerformancePDF } from '../../utils/exportReport';
 
 export const OverviewDashboard: React.FC = () => {
   const { 
@@ -46,13 +52,51 @@ export const OverviewDashboard: React.FC = () => {
   } = useApp();
 
   const [trendPeriod, setTrendPeriod] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const pendingClaims = invoices.filter(i => i.status === 'pending_review' || i.status === 'needs_info');
   const totalPaidCash = payouts.filter(p => p.status === 'paid').reduce((acc, p) => acc + p.netAmount, 0);
   const totalPendingCash = payouts.filter(p => p.status === 'requested' || p.status === 'approved').reduce((acc, p) => acc + p.netAmount, 0);
 
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleQuickCSV = () => {
+    setIsExportMenuOpen(false);
+    generatePerformanceCSV({
+      store: currentStore,
+      performance,
+      invoices,
+      payouts
+    });
+    triggerToast('Weekly performance CSV report downloaded.');
+  };
+
+  const handleQuickPDF = () => {
+    setIsExportMenuOpen(false);
+    generatePerformancePDF({
+      store: currentStore,
+      performance,
+      invoices,
+      payouts
+    });
+    triggerToast('Weekly performance PDF report generated and downloaded.');
+  };
+
   return (
     <div className="space-y-6 pb-12">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 bg-[#153B2B] text-[#FFFFFF] rounded-2xl shadow-xl border border-[#C8F43D]/30 flex items-center gap-2.5 text-xs font-semibold animate-in slide-in-from-bottom duration-200">
+          <CheckCircle2 className="w-4 h-4 text-[#C8F43D]" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* 1. Header Greeting & Primary Action Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#FFFFFF] p-5 md:p-6 rounded-2xl border border-[#E5EAE1] shadow-2xs">
         <div>
@@ -74,13 +118,71 @@ export const OverviewDashboard: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+          {/* Export Report Dropdown & Trigger */}
+          <div className="relative">
+            <button
+              onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#172018] bg-[#F5F7F3] hover:bg-[#EAEFE6] border border-[#DDE4D8] rounded-xl transition-colors cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-[#153B2B]" />
+              <span>Export Report</span>
+              <ChevronDown className="w-3 h-3 text-[#697565]" />
+            </button>
+
+            {isExportMenuOpen && (
+              <div 
+                className="absolute right-0 top-full mt-1.5 w-56 bg-[#FFFFFF] rounded-2xl shadow-xl border border-[#E5EAE1] p-1.5 z-40 animate-in fade-in zoom-in-95 duration-100"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="px-2.5 py-1.5 text-[10px] font-semibold text-[#697565] uppercase tracking-wider">
+                  Weekly Performance Export
+                </div>
+                <button
+                  type="button"
+                  onClick={handleQuickPDF}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 text-xs text-[#172018] hover:bg-[#FAFBF9] rounded-xl transition-colors cursor-pointer text-left"
+                >
+                  <FileText className="w-4 h-4 text-[#153B2B]" />
+                  <div>
+                    <div className="font-semibold">Download PDF Report</div>
+                    <div className="text-[10px] text-[#697565]">Formatted audit document</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleQuickCSV}
+                  className="w-full flex items-center gap-2.5 px-2.5 py-2 text-xs text-[#172018] hover:bg-[#FAFBF9] rounded-xl transition-colors cursor-pointer text-left"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-[#16A34A]" />
+                  <div>
+                    <div className="font-semibold">Download CSV Data</div>
+                    <div className="text-[10px] text-[#697565]">Spreadsheet with raw rows</div>
+                  </div>
+                </button>
+                <div className="h-[1px] bg-[#E5EAE1] my-1" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsExportMenuOpen(false);
+                    setIsExportModalOpen(true);
+                  }}
+                  className="w-full flex items-center justify-between px-2.5 py-2 text-xs text-[#153B2B] hover:bg-[#EAEFE6] font-semibold rounded-xl transition-colors cursor-pointer text-left"
+                >
+                  <span>Configure & Preview Report</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => setActiveNav('performance')}
-            className="px-3.5 py-2 text-xs font-semibold text-[#172018] bg-[#F5F7F3] hover:bg-[#EAEFE6] border border-[#DDE4D8] rounded-xl transition-colors cursor-pointer"
+            className="px-3.5 py-2 text-xs font-semibold text-[#172018] bg-[#F5F7F3] hover:bg-[#EAEFE6] border border-[#DDE4D8] rounded-xl transition-colors cursor-pointer hidden sm:inline-flex"
           >
             Target: {performance.achievementPercentage}% Achieved
           </button>
+
           <button
             onClick={() => setIsUploadModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#153B2B] bg-[#C8F43D] hover:bg-[#BBE832] rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer"
@@ -467,6 +569,12 @@ export const OverviewDashboard: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* 6. Report Export Modal */}
+      <ReportExportModal 
+        isOpen={isExportModalOpen} 
+        onClose={() => setIsExportModalOpen(false)} 
+      />
     </div>
   );
 };

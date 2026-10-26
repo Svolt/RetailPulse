@@ -39,7 +39,7 @@ export const Header: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-[#172018] whitespace-nowrap">
-              APEX LOYALTY
+              RetailPulse
             </span>
             <span className="text-[10px] text-[#697565] font-medium tracking-wide">
               {userRole === 'retailer' ? 'RETAILER PORTAL' : 'OPERATIONS CRM'}
