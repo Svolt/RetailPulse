@@ -1,4 +1,78 @@
-export type UserRole = 'retailer' | 'operations' | 'finance' | 'admin';
+export type PlatformRole = 
+  | 'Super Admin' 
+  | 'Operations Admin' 
+  | 'Finance' 
+  | 'Support Agent' 
+  | 'Retailer';
+
+export type UserRole = PlatformRole | 'retailer' | 'operations' | 'finance' | 'admin';
+
+export type UserAccountStatus = 'active' | 'pending_invite' | 'suspended' | 'deactivated';
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: PlatformRole;
+  status: UserAccountStatus;
+  storeIds: string[];
+  territory?: string;
+  distributor?: string;
+  programme?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  invitedBy?: string;
+  inviteToken?: string;
+  inviteExpiresAt?: string;
+  permissionsOverride?: string[];
+}
+
+export interface DashboardWidgetConfig {
+  id: string;
+  widgetKey: 'kpi_strip' | 'sales_trend' | 'points_dynamics' | 'needs_attention' | 'activity_timeline' | 'focus_products' | 'quick_actions';
+  title: string;
+  description: string;
+  isEnabled: boolean;
+  order: number;
+  audienceRoles?: PlatformRole[];
+  audienceTiers?: ('Platinum' | 'Gold' | 'Silver' | 'Bronze')[];
+  audienceTerritories?: string[];
+}
+
+export interface NavModuleConfig {
+  id: string;
+  moduleId: string;
+  label: string;
+  iconName: string;
+  isEnabled: boolean;
+  order: number;
+  requiredPermission: string;
+  visibleToRoles: PlatformRole[];
+}
+
+export interface BrandThemeConfig {
+  brandName: string;
+  primaryColor: string;
+  accentColor: string;
+  canvasColor: string;
+  fontFamily: string;
+  borderRadius: string;
+  loginTagline: string;
+}
+
+export interface ExperienceConfig {
+  versionId: string;
+  versionNumber: number;
+  status: 'draft' | 'published' | 'archived';
+  publishedAt?: string;
+  publishedBy?: string;
+  changeSummary: string;
+  widgets: DashboardWidgetConfig[];
+  navigation: NavModuleConfig[];
+  theme: BrandThemeConfig;
+  targetAudience: string;
+}
 
 export type KYCStatus = 'verified' | 'pending' | 'rejected' | 'needs_info';
 export type RetailerTier = 'Platinum' | 'Gold' | 'Silver' | 'Bronze';

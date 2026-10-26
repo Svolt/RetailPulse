@@ -48,13 +48,20 @@ export const OverviewDashboard: React.FC = () => {
     ledgerEvents,
     performance,
     payouts,
-    tasks
+    tasks,
+    publishedConfig
   } = useApp();
 
   const [trendPeriod, setTrendPeriod] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const isWidgetEnabled = (key: string) => {
+    if (!publishedConfig?.widgets) return true;
+    const w = publishedConfig.widgets.find(item => item.widgetKey === key);
+    return w ? w.isEnabled : true;
+  };
 
   const pendingClaims = invoices.filter(i => i.status === 'pending_review' || i.status === 'needs_info');
   const totalPaidCash = payouts.filter(p => p.status === 'paid').reduce((acc, p) => acc + p.netAmount, 0);
@@ -194,6 +201,7 @@ export const OverviewDashboard: React.FC = () => {
       </div>
 
       {/* 2. Distinctive Banking-Style KPI Strip */}
+      {isWidgetEnabled('kpi_strip') && (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Available Points */}
         <div 
@@ -294,6 +302,7 @@ export const OverviewDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* 3. Primary Analytics Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

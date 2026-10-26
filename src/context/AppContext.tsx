@@ -14,7 +14,8 @@ import {
   EarnRuleItem, 
   AuditLogItem, 
   UserRole,
-  ClaimStatus
+  ClaimStatus,
+  ExperienceConfig
 } from '../types';
 import { 
   INITIAL_STORES, 
@@ -41,7 +42,13 @@ interface AppContextType {
   activeNav: string;
   setActiveNav: (nav: string) => void;
   
+  // Published Experience Studio Configuration
+  publishedConfig: ExperienceConfig | null;
+  refreshPublishedConfig: () => Promise<void>;
+
   // Modals & Panels
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
   isCommandPaletteOpen: boolean;
   setIsCommandPaletteOpen: (open: boolean) => void;
   isUploadModalOpen: boolean;
@@ -95,9 +102,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [userRole, setUserRole] = useState<UserRole>('retailer');
   const [activeNav, setActiveNav] = useState<string>('overview');
 
+  const [publishedConfig, setPublishedConfig] = useState<ExperienceConfig | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  const refreshPublishedConfig = async () => {
+    try {
+      const res = await fetch('/api/config/published');
+      if (res.ok) {
+        const data = await res.json();
+        setPublishedConfig(data);
+      }
+    } catch (e) {
+      console.warn('[AppContext] Failed to load published config:', e);
+    }
+  };
+
+  useEffect(() => {
+    refreshPublishedConfig();
+  }, []);
 
   const [invoices, setInvoices] = useState<InvoiceClaim[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_PREFIX + 'invoices');
@@ -740,6 +765,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUserRole,
         activeNav,
         setActiveNav,
+        publishedConfig,
+        refreshPublishedConfig,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
         isCommandPaletteOpen,
         setIsCommandPaletteOpen,
         isUploadModalOpen,

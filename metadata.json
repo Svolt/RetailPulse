@@ -1,6 +1,6 @@
 {
-  "name": "Retailer Loyalty CRM",
-  "description": "Enterprise Retailer Digital Loyalty Platform & Operations CRM for invoice claims, points wallet, rewards catalogue, cash payouts, and sales performance.",
+  "name": "RetailPulse",
+  "description": "Configurable multi-role SaaS retailer loyalty platform with RBAC user management, Experience Studio, invoice claims review, points ledger, and payout operations.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

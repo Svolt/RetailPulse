@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { AuthProvider } from './context/AuthContext';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
@@ -27,9 +28,12 @@ import { PayoutOperations } from './components/crm/PayoutOperations';
 import { RulesEngineSimulator } from './components/crm/RulesEngineSimulator';
 import { CampaignsManager } from './components/crm/CampaignsManager';
 import { AuditLogView } from './components/crm/AuditLogView';
+import { UserManagementView } from './components/crm/UserManagementView';
+import { ExperienceStudioView } from './components/crm/ExperienceStudioView';
+import { AuthModal } from './components/auth/AuthModal';
 
 const MainContent: React.FC = () => {
-  const { activeNav } = useApp();
+  const { activeNav, isAuthModalOpen, setIsAuthModalOpen } = useApp();
 
   const renderCurrentView = () => {
     switch (activeNav) {
@@ -53,6 +57,10 @@ const MainContent: React.FC = () => {
         return <StoreProfileKycView />;
       case 'tickets':
         return <SupportTicketsView />;
+      case 'crm-users':
+        return <UserManagementView />;
+      case 'crm-experience':
+        return <ExperienceStudioView />;
       case 'crm-retailers':
         return <RetailerDirectory />;
       case 'crm-claims':
@@ -85,14 +93,17 @@ const MainContent: React.FC = () => {
       <InvoiceUploadModal />
       <NotificationDrawer />
       <MobileNav />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </div>
   );
 };
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainContent />
-    </AppProvider>
+    <AuthProvider>
+      <AppProvider>
+        <MainContent />
+      </AppProvider>
+    </AuthProvider>
   );
 }
