@@ -1,4 +1,4 @@
-# Retailer Digital Loyalty CRM — Master Build Prompt V4
+# RetailPulse : Retailer Digital Loyalty CRM 
 
 **Premium visual direction + complete functional scope**  
 Version 4.0 | Responsive web CRM + retailer PWA/mobile experience
