@@ -1,0 +1,6 @@
+{
+  "name": "Retailer Loyalty CRM",
+  "description": "Enterprise Retailer Digital Loyalty Platform & Operations CRM for invoice claims, points wallet, rewards catalogue, cash payouts, and sales performance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
